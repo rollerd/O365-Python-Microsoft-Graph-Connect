@@ -10,9 +10,10 @@ graph_api_endpoint = 'https://graph.microsoft.com/v1.0{0}'
 		
 def call_sendMail_endpoint(access_token, alias, emailAddress):
 	# The resource URL for the sendMail action.
-  send_mail_url = graph_api_endpoint.format('/me/microsoft.graph.sendMail')
+	# https://graph.microsoft.io/en-us/docs/api-reference/v1.0/api/user_sendmail
+  send_mail_url = graph_api_endpoint.format('/me/sendMail')
 	
-	# Set request headers.
+       # Set request headers.
   headers = { 
 		'User-Agent' : 'python_tutorial/1.0',
 		'Authorization' : 'Bearer {0}'.format(access_token),

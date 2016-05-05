@@ -13,10 +13,11 @@ home_page_url = 'http://127.0.0.1:8000/'
 authority = 'https://login.microsoftonline.com'
 
 # The authorize URL that initiates the OAuth2 client credential flow for admin consent.
-authorize_url = '{0}{1}'.format(authority, '/common/oauth2/authorize?{0}')
+# https://azure.microsoft.com/en-us/documentation/articles/active-directory-v2-protocols-oauth-code/#request-an-access-token
+authorize_url = '{0}{1}'.format(authority, '/common/oauth2/v2.0/authorize?{0}')
 
 # The token issuing endpoint.
-token_url = '{0}{1}'.format(authority, '/common/oauth2/token')
+token_url = '{0}{1}'.format(authority, '/common/oauth2/v2.0/token')
 
 # This function creates the signin URL that the app will
 # direct the user to in order to sign in to Office 365 and
@@ -25,8 +26,10 @@ def get_signin_url(redirect_uri):
   # Build the query parameters for the signin URL.
   params = { 'client_id': client_id,
              'redirect_uri': redirect_uri,
-             'response_type': 'code'
-           }
+             'response_type': 'code',
+             # https://azure.microsoft.com/en-us/documentation/articles/active-directory-v2-scopes/#openid-connect-scopes
+             'scope': 'openid email profile offline_access https://graph.microsoft.com/mail.read https://graph.microsoft.com/mail.send'
+  }
 
   signin_url = authorize_url.format(urlencode(params))
   return signin_url
@@ -35,7 +38,7 @@ def get_signout_url(redirect_uri):
   params = { 'post_logout_redirect_uri': home_page_url
            }
            
-  signout_url = (authority + '/common/oauth2/logout?{0}').format(urlencode(params))
+  signout_url = (authority + '/common/oauth2/v2.0/logout?{0}').format(urlencode(params))
   return signout_url
   
 # This function passes the authorization code to the token
@@ -47,11 +50,12 @@ def get_token_from_code(auth_code, redirect_uri):
                 'redirect_uri': redirect_uri,
                 'client_id': client_id,
                 'client_secret': client_secret,
-                'resource': 'https://graph.microsoft.com'
+                # https://azure.microsoft.com/en-us/documentation/articles/active-directory-v2-protocols-oauth-code/#request-an-authorization-code
+                'scope': 'openid email profile offline_access https://graph.microsoft.com/mail.read https://graph.microsoft.com/mail.send'
               }
               
   r = requests.post(token_url, data = post_data)
-  
+
   try:
     return r.json()
   except:
@@ -78,9 +82,9 @@ def get_user_info_from_token(id_token):
   
   # Load decoded token into a JSON object.
   jwt = json.loads(decoded)
-  
+
   return jwt
-  
+
 #######################################################################
 #  
 # O365-Python-Microsoft-Graph-Connect, https://github.com/OfficeDev/O365-Python-Microsoft-Graph-Connect

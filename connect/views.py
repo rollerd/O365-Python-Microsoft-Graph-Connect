@@ -29,8 +29,9 @@ def get_token(request):
 
   # Save the token and other information for the view in the session.
   request.session['access_token'] = access_token
-  request.session['alias'] = user_info['upn'].split('@')[0]
-  request.session['emailAddress'] = user_info['upn']  
+  # https://azure.microsoft.com/en-us/documentation/articles/active-directory-v2-tokens/#idtokens
+  request.session['alias'] = user_info['name']
+  request.session['emailAddress'] = user_info['preferred_username']
   request.session['showSuccess'] = 'false'
   request.session['showError'] = 'false'
   request.session['pageRefresh'] = 'true'
@@ -43,8 +44,8 @@ def main(request):
   if request.session['pageRefresh'] == 'false':
     request.session['pageRefresh'] = 'true'
   else :
-    request.session['showSuccess'] = 'false'  
-    request.session['showError'] = 'false' 
+    request.session['showSuccess'] = 'false'
+    request.session['showError'] = 'false'
   
   context = {
     'alias': request.session['alias'],
@@ -67,7 +68,7 @@ def send_mail(request):
   # that the operation completed successfully. 
   if response == 202:
     request.session['showSuccess'] = 'true'  
-    request.session['showError'] = 'false'  
+    request.session['showError'] = 'false'   
   else:
     print(response)
     request.session['showSuccess'] = 'false' 
